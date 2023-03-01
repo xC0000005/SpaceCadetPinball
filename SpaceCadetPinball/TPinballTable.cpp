@@ -276,10 +276,12 @@ void TPinballTable::ChangeBallCount(int count)
 	BallCount = count;
 	if (count <= 0)
 	{
+		// SIDE-DRAW
 		score::erase(ScoreBallcount, 1);
 	}
 	else
 	{
+		// SIDE-DRAW
 		score::set(ScoreBallcount, MaxBallCount - count + 1);
 		score::update(ScoreBallcount);
 	}
@@ -501,7 +503,7 @@ int TPinballTable::Message(MessageCode code, float value)
 			CurScoreStruct = nextScorePtr->ScoreStruct;
 			score::set(CurScoreStruct, CurScore);
 			CurScoreStruct->DirtyFlag = true;
-
+			
 			ChangeBallCount(BallCount);
 			score::set(ScorePlayerNumber1, nextPlayer + 1);
 			score::update(ScorePlayerNumber1);

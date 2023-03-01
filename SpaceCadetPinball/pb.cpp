@@ -66,6 +66,7 @@ int pb::init()
 	auto cameraInfo = (float*)record_table->field(cameraInfoId, FieldTypes::FloatArray);
 
 	/*Full tilt: table size depends on resolution*/
+	// SIDE-DRAW - this needs to be adjusted
 	auto resInfo = &fullscrn::resolution_array[fullscrn::GetResolution()];
 
 	if (cameraInfo)
@@ -82,8 +83,10 @@ int pb::init()
 	}
 
 	render::init(nullptr, resInfo->TableWidth, resInfo->TableHeight);
+	
+	// SIDE-DRAW - this copies the side frame/score box.
 	gdrv::copy_bitmap(
-		render::vscreen,
+		render::background_bitmap,
 		backgroundBmp->Width,
 		backgroundBmp->Height,
 		backgroundBmp->XPosition,

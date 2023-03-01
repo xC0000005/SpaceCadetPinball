@@ -93,11 +93,12 @@ void score::unload_msg_font()
 
 void score::erase(scoreStruct* score, int blitFlag)
 {
+	// SIDE-DRAW
 	if (score)
 	{
 		if (score->BackgroundBmp)
 			gdrv::copy_bitmap(
-				render::vscreen,
+				render::background_bitmap,
 				score->Width,
 				score->Height,
 				score->OffsetX,
@@ -106,7 +107,7 @@ void score::erase(scoreStruct* score, int blitFlag)
 				score->OffsetX,
 				score->OffsetY);
 		else
-			gdrv::fill_bitmap(render::vscreen, score->Width, score->Height, score->OffsetX, score->OffsetY, 0);
+			gdrv::fill_bitmap(render::background_bitmap, score->Width, score->Height, score->OffsetX, score->OffsetY, 0);
 	}
 }
 
@@ -122,6 +123,7 @@ void score::set(scoreStruct* score, int value)
 
 void score::update(scoreStruct* score)
 {
+	// SIDE-DRAW
 	char scoreBuf[12]{};
 	if (score && score->DirtyFlag && score->Score <= 1000000000)
 	{
@@ -141,9 +143,9 @@ void score::update(scoreStruct* score)
 				int height = bmp->Height;
 				int width = bmp->Width;
 				if (render::background_bitmap)
-					gdrv::copy_bitmap_w_transparency(render::vscreen, width, height, x, y, bmp, 0, 0);
+					gdrv::copy_bitmap_w_transparency(render::background_bitmap, width, height, x, y, bmp, 0, 0);
 				else
-					gdrv::copy_bitmap(render::vscreen, width, height, x, y, bmp, 0, 0);
+					gdrv::copy_bitmap(render::background_bitmap, width, height, x, y, bmp, 0, 0);
 			}
 		}
 	}

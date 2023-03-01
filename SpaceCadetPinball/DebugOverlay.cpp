@@ -87,7 +87,7 @@ void DebugOverlay::DrawOverlay()
 	if (dbScreen == nullptr)
 	{
 		dbScreen = new gdrv_bitmap8(render::vscreen->Width, render::vscreen->Height, false, false);
-		dbScreen->CreateTexture("nearest", SDL_TEXTUREACCESS_TARGET);
+		dbScreen->CreateTexture("nearest", SDL_TEXTUREACCESS_TARGET, false);
 		SDL_SetTextureBlendMode(dbScreen->Texture, SDL_BLENDMODE_BLEND);
 	}
 

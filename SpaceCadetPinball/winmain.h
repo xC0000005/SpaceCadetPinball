@@ -70,6 +70,8 @@ public:
 	static bool single_step;
 	static SDL_Window* MainWindow;
 	static SDL_Renderer* Renderer;
+	static SDL_Window* BackGlassWindow;
+	static SDL_Renderer* BackGlassRenderer;
 	static ImGuiIO* ImIO;
 	static bool LaunchBallEnabled;
 	static bool HighScoresEnabled;

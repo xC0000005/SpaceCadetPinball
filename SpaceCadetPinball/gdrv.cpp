@@ -123,7 +123,7 @@ void gdrv_bitmap8::ScaleIndexed(float scaleX, float scaleY)
 	BmpBufPtr1 = new ColorRgba[Stride * Height];
 }
 
-void gdrv_bitmap8::CreateTexture(const char* scaleHint, int access)
+void gdrv_bitmap8::CreateTexture(const char* scaleHint, int access, bool background)
 {
 	if (Texture != nullptr)
 	{
@@ -133,7 +133,7 @@ void gdrv_bitmap8::CreateTexture(const char* scaleHint, int access)
 	UsingSdlHint hint{ SDL_HINT_RENDER_SCALE_QUALITY, scaleHint };
 	Texture = SDL_CreateTexture
 	(
-		winmain::Renderer,
+		background ? winmain::BackGlassRenderer : winmain::Renderer,
 		SDL_PIXELFORMAT_BGRA32,
 		access,
 		Width, Height
@@ -273,6 +273,7 @@ void gdrv::ScrollBitmapHorizontal(gdrv_bitmap8* bmp, int xStart)
 
 void gdrv::grtext_draw_ttext_in_box()
 {
+	// SIDE-DRAW
 	for (const auto textBox : { pb::InfoTextBox, pb::MissTextBox })
 	{
 		if (textBox)
@@ -306,6 +307,6 @@ void gdrv::CreatePreview(gdrv_bitmap8& bmp)
 	if (bmp.Texture)
 		return;
 
-	bmp.CreateTexture("nearest", SDL_TEXTUREACCESS_STATIC);
+	bmp.CreateTexture("nearest", SDL_TEXTUREACCESS_STATIC, false);
 	SDL_UpdateTexture(bmp.Texture, nullptr, bmp.BmpBufPtr1, bmp.Width * 4);
 }

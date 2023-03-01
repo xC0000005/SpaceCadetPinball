@@ -12,12 +12,21 @@ int fullscrn::screen_mode;
 int fullscrn::display_changed;
 
 int fullscrn::resolution = 0;
+
 const resolution_info fullscrn::resolution_array[3] =
 {
-	{640, 480, 600, 416, 501},
+	{365, 470, 365, 420, 501},
 	{800, 600, 752, 520, 502},
 	{1024, 768, 960, 666, 503},
 };
+
+const resolution_info fullscrn::back_glass_resolution_array[3] =
+{
+	{240, 410, 240, 410, 501},
+	{800, 600, 752, 520, 502},
+	{1024, 768, 960, 666, 503},
+};
+
 float fullscrn::ScaleX = 1;
 float fullscrn::ScaleY = 1;
 int fullscrn::OffsetX = 0;

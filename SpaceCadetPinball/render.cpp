@@ -101,6 +101,7 @@ void render_sprite::ball_set(gdrv_bitmap8* bmp, float depth, int xPos, int yPos)
 
 void render::init(gdrv_bitmap8* bmp, int width, int height)
 {
+	background_bitmap = new gdrv_bitmap8(width, height, false);
 	vscreen = new gdrv_bitmap8(width, height, false);
 	zscreen = new zmap_header_type(width, height, width);
 	zdrv::fill(zscreen, zscreen->Width, zscreen->Height, 0, 0, 0xFFFF);
@@ -113,7 +114,6 @@ void render::init(gdrv_bitmap8* bmp, int width, int height)
 	for (auto& ballBmp : ball_bitmap)
 		ballBmp = new gdrv_bitmap8(64, 64, false);
 
-	background_bitmap = bmp;
 	if (bmp)
 		gdrv::copy_bitmap(vscreen, width, height, 0, 0, bmp, 0, 0);
 	else
@@ -139,7 +139,8 @@ void render::uninit()
 
 void render::recreate_screen_texture()
 {
-	vscreen->CreateTexture(options::Options.LinearFiltering ? "linear" : "nearest", SDL_TEXTUREACCESS_STREAMING);
+	vscreen->CreateTexture(options::Options.LinearFiltering ? "linear" : "nearest", SDL_TEXTUREACCESS_STREAMING, false);
+	background_bitmap->CreateTexture(options::Options.LinearFiltering ? "linear" : "nearest", SDL_TEXTUREACCESS_STREAMING, true);
 }
 
 void render::update()
@@ -455,15 +456,17 @@ void render::SpriteViewer(bool* show)
 void render::PresentVScreen()
 {
 	vscreen->BlitToTexture();
+	background_bitmap->BlitToTexture();
 
 	if (offset_x == 0 && offset_y == 0)
 	{
 		SDL_RenderCopy(winmain::Renderer, vscreen->Texture, nullptr, &DestinationRect);
+		SDL_RenderCopy(winmain::BackGlassRenderer, background_bitmap->Texture, nullptr, &DestinationRect);
 	}
 	else
 	{
-		auto tableWidthCoef = static_cast<float>(pb::MainTable->Width) / vscreen->Width;
-		auto srcSeparationX = static_cast<int>(round(vscreen->Width * tableWidthCoef));
+		auto tableWidthCoef = static_cast<float>(0);
+		auto srcSeparationX = static_cast<int>(0);
 		auto srcBoardRect = SDL_Rect
 		{
 			0, 0,
@@ -472,12 +475,12 @@ void render::PresentVScreen()
 		auto srcSidebarRect = SDL_Rect
 		{
 			srcSeparationX, 0,
-			vscreen->Width - srcSeparationX, vscreen->Height
+			background_bitmap->Width, background_bitmap->Height
 		};
 
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 		// SDL_RenderCopyF was added in 2.0.10
-		auto dstSeparationX = DestinationRect.w * tableWidthCoef;
+		auto dstSeparationX = float(0);
 		auto dstBoardRect = SDL_FRect
 		{
 			DestinationRect.x + offset_x * fullscrn::ScaleX,
@@ -491,7 +494,7 @@ void render::PresentVScreen()
 		};
 
 		SDL_RenderCopyF(winmain::Renderer, vscreen->Texture, &srcBoardRect, &dstBoardRect);
-		SDL_RenderCopyF(winmain::Renderer, vscreen->Texture, &srcSidebarRect, &dstSidebarRect);
+		SDL_RenderCopyF(winmain::BackGlassRenderer, background_bitmap->Texture, &srcSidebarRect, &dstSidebarRect);
 #else
 		// SDL_RenderCopy cannot express sub pixel offset.
 		// Vscreen shift is required for that.
@@ -515,7 +518,7 @@ void render::PresentVScreen()
 		};
 
 		SDL_RenderCopy(winmain::Renderer, vscreen->Texture, &srcBoardRect, &dstBoardRect);
-		SDL_RenderCopy(winmain::Renderer, vscreen->Texture, &srcSidebarRect, &dstSidebarRect);
+		SDL_RenderCopy(winmain::BackGlassRenderer, background_bitmap->Texture, &srcSidebarRect, &dstSidebarRect);
 #endif
 	}
 

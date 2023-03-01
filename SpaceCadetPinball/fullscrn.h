@@ -15,6 +15,7 @@ public:
 	static int screen_mode;
 	static int display_changed;
 	static const resolution_info resolution_array[3];
+	static const resolution_info back_glass_resolution_array[3];
 	static float ScaleX;
 	static float ScaleY;
 	static int OffsetX;

@@ -15,6 +15,9 @@ constexpr const char* winmain::Version;
 
 SDL_Window* winmain::MainWindow = nullptr;
 SDL_Renderer* winmain::Renderer = nullptr;
+SDL_Window* winmain::BackGlassWindow = nullptr;
+SDL_Renderer* winmain::BackGlassRenderer = nullptr;
+
 ImGuiIO* winmain::ImIO = nullptr;
 
 int winmain::return_value = 0;
@@ -86,6 +89,21 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 		return 1;
 	}
 
+	// SDL window
+	SDL_Window* window2 = SDL_CreateWindow
+	(
+		pb::get_rc_string(Msg::STRING139),
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		800, 556,
+		SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
+	);
+	BackGlassWindow = window2;
+	if (!window2)
+	{
+		pb::ShowMessageBox(SDL_MESSAGEBOX_ERROR, "Could not create window", SDL_GetError());
+		return 1;
+	}
+
 	// If HW fails, fallback to SW SDL renderer.
 	SDL_Renderer* renderer = nullptr;
 	auto swOffset = strstr(lpCmdLine, "-sw") != nullptr ? 1 : 0;
@@ -103,10 +121,29 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 		pb::ShowMessageBox(SDL_MESSAGEBOX_ERROR, "Could not create renderer", SDL_GetError());
 		return 1;
 	}
+
+	// If HW fails, fallback to SW SDL renderer.
+	SDL_Renderer* renderer2 = nullptr;
+	for (int i = swOffset; i < 2 && !renderer2; i++)
+	{
+		BackGlassRenderer = renderer2 = SDL_CreateRenderer
+		(
+			window2,
+			-1,
+			i == 0 ? SDL_RENDERER_ACCELERATED : SDL_RENDERER_SOFTWARE
+		);
+	}
+	if (!renderer2)
+	{
+		pb::ShowMessageBox(SDL_MESSAGEBOX_ERROR, "Could not create renderer", SDL_GetError());
+		return 1;
+	}
+
 	SDL_RendererInfo rendererInfo{};
 	if (!SDL_GetRendererInfo(renderer, &rendererInfo))
 		printf("Using SDL renderer: %s\n", rendererInfo.name);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(renderer2, 0, 0, 0, 255);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 
 	auto prefPath = SDL_GetPrefPath("", "SpaceCadetPinball");
@@ -235,8 +272,13 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 		{
 			auto resInfo = &fullscrn::resolution_array[fullscrn::GetResolution()];
 			SDL_SetWindowSize(MainWindow, resInfo->TableWidth, resInfo->TableHeight);
+
+			auto backGlassResInfo = &fullscrn::back_glass_resolution_array[fullscrn::GetResolution()];
+			SDL_SetWindowSize(BackGlassWindow, backGlassResInfo->TableWidth, backGlassResInfo->TableHeight);
 		}
 		SDL_ShowWindow(window);
+		SDL_ShowWindow(window2);
+
 		fullscrn::set_screen_mode(Options.FullScreen);
 
 		if (strstr(lpCmdLine, "-demo"))
@@ -368,6 +410,8 @@ void winmain::MainLoop()
 				ImGui_Render_RenderDrawData(ImGui::GetDrawData());
 
 				SDL_RenderPresent(Renderer);
+				SDL_RenderPresent(BackGlassRenderer);
+
 				frameCounter++;
 				UpdateToFrameCounter -= UpdateToFrameRatio;
 			}

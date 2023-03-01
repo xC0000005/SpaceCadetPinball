@@ -9,7 +9,7 @@
 #include "score.h"
 #include "timer.h"
 
-
+// SIDE-DRAW - this box is pretty much all side drawing
 TTextBox::TTextBox(TPinballTable* table, int groupIndex) : TPinballComponent(table, groupIndex, true)
 {
 	OffsetX = 0;
@@ -76,7 +76,7 @@ void TTextBox::Clear()
 	gdrv_bitmap8* bmp = BgBmp;
 	if (bmp)
 		gdrv::copy_bitmap(
-			render::vscreen,
+			render::background_bitmap,
 			Width,
 			Height,
 			OffsetX,
@@ -85,7 +85,7 @@ void TTextBox::Clear()
 			OffsetX,
 			OffsetY);
 	else
-		gdrv::fill_bitmap(render::vscreen, Width, Height, OffsetX, OffsetY, 0);
+		gdrv::fill_bitmap(render::background_bitmap, Width, Height, OffsetX, OffsetY, 0);
 	if (Timer)
 	{
 		if (Timer != -1)
@@ -187,9 +187,9 @@ void TTextBox::DrawImGui()
 void TTextBox::Draw()
 {
 	auto bmp = BgBmp;
-	if (bmp)
+	if (false)
 		gdrv::copy_bitmap(
-			render::vscreen,
+			render::background_bitmap,
 			Width,
 			Height,
 			OffsetX,
@@ -198,7 +198,7 @@ void TTextBox::Draw()
 			OffsetX,
 			OffsetY);
 	else
-		gdrv::fill_bitmap(render::vscreen, Width, Height, OffsetX, OffsetY, 0);
+		gdrv::fill_bitmap(render::background_bitmap, Width, Height, OffsetX, OffsetY, 0);
 
 	bool display = false;
 	while (CurrentMessage)
@@ -263,10 +263,10 @@ void TTextBox::Draw()
 					auto height = charBmp->Height;
 					auto width = charBmp->Width;
 					if (render::background_bitmap)
-						gdrv::copy_bitmap_w_transparency(render::vscreen, width, height, offX, offY, charBmp, 0,
+						gdrv::copy_bitmap_w_transparency(render::background_bitmap, width, height, offX, offY, charBmp, 0,
 						                                 0);
 					else
-						gdrv::copy_bitmap(render::vscreen, width, height, offX, offY, charBmp, 0, 0);
+						gdrv::copy_bitmap(render::background_bitmap, width, height, offX, offY, charBmp, 0, 0);
 					offX += charBmp->Width + Font->GapWidth;
 				}
 			}
